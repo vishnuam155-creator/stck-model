@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Trading Signal Dashboard{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-shadow:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .badge-buy {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .badge-sell {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .sidebar-link {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .sidebar-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #fff;
+        }
+
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .signal-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .signal-card:hover {
+            border-left-color: #667eea;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full">
+    <div x-data="{ sidebarOpen: false }" class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+             class="fixed inset-y-0 left-0 z-50 w-64 gradient-bg text-white transform lg:translate-x-0 lg:static transition duration-300 ease-in-out">
+
+            <!-- Logo -->
+            <div class="flex items-center justify-between h-16 px-6 bg-black bg-opacity-20">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-2xl"></i>
+                    <span class="text-xl font-bold">TradePro</span>
+                </div>
+                <button @click="sidebarOpen = false" class="lg:hidden">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="mt-8 px-4 space-y-2">
+                <a href="{% url 'signals:dashboard' %}"
+                   class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-home w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{% url 'signals:signals_list' %}"
+                   class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'signals_list' %}active{% endif %}">
+                    <i class="fas fa-signal w-5"></i>
+                    <span>Trading Signals</span>
+                </a>
+
+                <a href="{% url 'admin:index' %}"
+                   class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+
+            <!-- Bottom Info -->
+            <div class="absolute bottom-0 left-0 right-0 p-6 bg-black bg-opacity-20">
+                <div class="text-sm">
+                    <p class="font-semibold">Market Hours</p>
+                    <p class="text-gray-200 text-xs mt-1">9:15 AM - 3:30 PM IST</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between h-16 px-6">
+                    <!-- Mobile menu button -->
+                    <button @click="sidebarOpen = true" class="lg:hidden">
+                        <i class="fas fa-bars text-xl text-gray-600"></i>
+                    </button>
+
+                    <!-- Page Title -->
+                    <h1 class="text-2xl font-bold text-gray-800">
+                        {% block page_title %}Dashboard{% endblock %}
+                    </h1>
+
+                    <!-- Right Side -->
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="w-2 h-2 bg-green-500 rounded-full pulse-animation"></div>
+                            <span class="text-gray-600">Live</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="far fa-clock"></i>
+                            <span id="current-time"></span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+                <div class="container mx-auto px-6 py-8">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Kolkata',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            document.getElementById('current-time').textContent =
+                now.toLocaleString('en-IN', options) + ' IST';
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

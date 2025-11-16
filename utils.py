@@ -21,10 +21,11 @@ from exceptions import CacheError
 
 # ============================== Type Variables ============================== #
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 # ============================== Time Utilities ============================== #
+
 
 def now_ist() -> datetime:
     """
@@ -38,7 +39,9 @@ def now_ist() -> datetime:
     return datetime.now(timezone.utc).astimezone(ist_tz)
 
 
-def format_timestamp(dt: Optional[datetime] = None, fmt: str = "%Y-%m-%d %H:%M:%S") -> str:
+def format_timestamp(
+    dt: Optional[datetime] = None, fmt: str = "%Y-%m-%d %H:%M:%S"
+) -> str:
     """
     Format a datetime object as a string.
 
@@ -66,18 +69,19 @@ def is_market_hours() -> bool:
         hour=Config.market.MARKET_OPEN_HOUR,
         minute=Config.market.MARKET_OPEN_MINUTE,
         second=0,
-        microsecond=0
+        microsecond=0,
     )
     market_close = now.replace(
         hour=Config.market.MARKET_CLOSE_HOUR,
         minute=Config.market.MARKET_CLOSE_MINUTE,
         second=0,
-        microsecond=0
+        microsecond=0,
     )
     return market_open <= now <= market_close
 
 
 # ============================== Numeric Utilities ============================== #
+
 
 def safe_float(x: Any, default: float = np.nan) -> float:
     """
@@ -190,6 +194,7 @@ def clamp(value: float, min_val: float, max_val: float) -> float:
 
 # ============================== String Utilities ============================== #
 
+
 def md5_hash(s: str) -> str:
     """
     Generate MD5 hash of a string.
@@ -217,7 +222,7 @@ def truncate_string(s: str, max_length: int = 100, suffix: str = "...") -> str:
     """
     if len(s) <= max_length:
         return s
-    return s[:max_length - len(suffix)] + suffix
+    return s[: max_length - len(suffix)] + suffix
 
 
 def clean_symbol(symbol: str) -> str:
@@ -250,6 +255,7 @@ def add_yf_suffix(symbol: str) -> str:
 
 # ============================== Cache Utilities ============================== #
 
+
 def load_cache(path: str) -> Dict[str, Any]:
     """
     Load cache data from JSON file.
@@ -271,9 +277,7 @@ def load_cache(path: str) -> Dict[str, Any]:
             return json.load(f)
     except json.JSONDecodeError as e:
         raise CacheError(
-            operation="read",
-            cache_file=path,
-            reason=f"Invalid JSON: {str(e)}"
+            operation="read", cache_file=path, reason=f"Invalid JSON: {str(e)}"
         )
     except Exception as e:
         # Don't fail on cache errors, just return empty
@@ -300,11 +304,7 @@ def save_cache(path: str, data: Dict[str, Any]) -> None:
         # Atomic replace
         os.replace(tmp_path, path)
     except Exception as e:
-        raise CacheError(
-            operation="write",
-            cache_file=path,
-            reason=str(e)
-        )
+        raise CacheError(operation="write", cache_file=path, reason=str(e))
 
 
 def clear_cache(path: Optional[str] = None) -> None:
@@ -326,6 +326,7 @@ def clear_cache(path: Optional[str] = None) -> None:
 
 
 # ============================== DataFrame Utilities ============================== #
+
 
 def row_scalar(row: pd.Series, col: str, default: Any = np.nan) -> Any:
     """
@@ -382,6 +383,7 @@ def drop_all_nan_rows(df: pd.DataFrame) -> pd.DataFrame:
 
 # ============================== List Utilities ============================== #
 
+
 def chunk_list(lst: List[T], chunk_size: int) -> List[List[T]]:
     """
     Split a list into chunks of specified size.
@@ -393,7 +395,7 @@ def chunk_list(lst: List[T], chunk_size: int) -> List[List[T]]:
     Returns:
         List of chunks
     """
-    return [lst[i:i + chunk_size] for i in range(0, len(lst), chunk_size)]
+    return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
 
 def deduplicate_list(lst: List[T], key: Optional[callable] = None) -> List[T]:
@@ -428,6 +430,7 @@ def deduplicate_list(lst: List[T], key: Optional[callable] = None) -> List[T]:
 
 # ============================== Validation Utilities ============================== #
 
+
 def is_valid_symbol(symbol: str) -> bool:
     """
     Check if a symbol is valid.
@@ -445,7 +448,9 @@ def is_valid_symbol(symbol: str) -> bool:
     clean = clean_symbol(symbol)
 
     # Basic checks: not empty, alphanumeric with some special chars
-    return bool(clean and len(clean) <= 20 and clean.replace("-", "").replace("&", "").isalnum())
+    return bool(
+        clean and len(clean) <= 20 and clean.replace("-", "").replace("&", "").isalnum()
+    )
 
 
 def is_valid_price(price: Any) -> bool:
@@ -484,6 +489,7 @@ def is_valid_percentage(pct: Any) -> bool:
 
 # ============================== File Utilities ============================== #
 
+
 def ensure_dir(path: str) -> None:
     """
     Ensure a directory exists, creating it if necessary.
@@ -519,39 +525,32 @@ __all__ = [
     "now_ist",
     "format_timestamp",
     "is_market_hours",
-
     # Numeric
     "safe_float",
     "safe_int",
     "safe_round",
     "percentage_change",
     "clamp",
-
     # String
     "md5_hash",
     "truncate_string",
     "clean_symbol",
     "add_yf_suffix",
-
     # Cache
     "load_cache",
     "save_cache",
     "clear_cache",
-
     # DataFrame
     "row_scalar",
     "ensure_columns",
     "drop_all_nan_rows",
-
     # List
     "chunk_list",
     "deduplicate_list",
-
     # Validation
     "is_valid_symbol",
     "is_valid_price",
     "is_valid_percentage",
-
     # File
     "ensure_dir",
     "get_file_age_hours",

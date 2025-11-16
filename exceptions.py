@@ -11,6 +11,7 @@ from typing import Optional, Any, Dict
 
 # ============================== Base Exceptions ============================== #
 
+
 class StockAnalysisError(Exception):
     """Base exception for all stock analysis errors."""
 
@@ -36,8 +37,10 @@ class StockAnalysisError(Exception):
 
 # ============================== Data Errors ============================== #
 
+
 class DataError(StockAnalysisError):
     """Base class for data-related errors."""
+
     pass
 
 
@@ -49,7 +52,7 @@ class DataFetchError(DataError):
         source: str,
         symbol: Optional[str] = None,
         reason: Optional[str] = None,
-        original_exception: Optional[Exception] = None
+        original_exception: Optional[Exception] = None,
     ):
         """
         Initialize the exception.
@@ -82,11 +85,7 @@ class DataValidationError(DataError):
     """Raised when data fails validation checks."""
 
     def __init__(
-        self,
-        field: str,
-        value: Any,
-        expected: str,
-        symbol: Optional[str] = None
+        self, field: str, value: Any, expected: str, symbol: Optional[str] = None
     ):
         """
         Initialize the exception.
@@ -97,15 +96,13 @@ class DataValidationError(DataError):
             expected: Description of expected value/format
             symbol: Stock symbol if applicable
         """
-        message = f"Validation failed for field '{field}': expected {expected}, got {value}"
+        message = (
+            f"Validation failed for field '{field}': expected {expected}, got {value}"
+        )
         if symbol:
             message = f"{symbol}: {message}"
 
-        details = {
-            "field": field,
-            "value": value,
-            "expected": expected
-        }
+        details = {"field": field, "value": value, "expected": expected}
         if symbol:
             details["symbol"] = symbol
 
@@ -116,11 +113,7 @@ class InsufficientDataError(DataError):
     """Raised when there is not enough data for analysis."""
 
     def __init__(
-        self,
-        symbol: str,
-        required: int,
-        available: int,
-        data_type: str = "data points"
+        self, symbol: str, required: int, available: int, data_type: str = "data points"
     ):
         """
         Initialize the exception.
@@ -139,15 +132,17 @@ class InsufficientDataError(DataError):
             "symbol": symbol,
             "required": required,
             "available": available,
-            "data_type": data_type
+            "data_type": data_type,
         }
         super().__init__(message, details)
 
 
 # ============================== API Errors ============================== #
 
+
 class APIError(StockAnalysisError):
     """Base class for API-related errors."""
+
     pass
 
 
@@ -166,21 +161,14 @@ class APIKeyMissingError(APIError):
             f"API key for {api_name} is missing. "
             f"Please set the {env_var} environment variable."
         )
-        details = {
-            "api_name": api_name,
-            "env_var": env_var
-        }
+        details = {"api_name": api_name, "env_var": env_var}
         super().__init__(message, details)
 
 
 class APIRateLimitError(APIError):
     """Raised when API rate limit is exceeded."""
 
-    def __init__(
-        self,
-        api_name: str,
-        retry_after: Optional[int] = None
-    ):
+    def __init__(self, api_name: str, retry_after: Optional[int] = None):
         """
         Initialize the exception.
 
@@ -203,10 +191,7 @@ class APIResponseError(APIError):
     """Raised when API returns an unexpected response."""
 
     def __init__(
-        self,
-        api_name: str,
-        status_code: int,
-        response_text: Optional[str] = None
+        self, api_name: str, status_code: int, response_text: Optional[str] = None
     ):
         """
         Initialize the exception.
@@ -217,10 +202,7 @@ class APIResponseError(APIError):
             response_text: Response body text
         """
         message = f"{api_name} returned status code {status_code}"
-        details = {
-            "api_name": api_name,
-            "status_code": status_code
-        }
+        details = {"api_name": api_name, "status_code": status_code}
         if response_text:
             details["response"] = response_text[:200]  # Limit length
 
@@ -229,20 +211,17 @@ class APIResponseError(APIError):
 
 # ============================== Analysis Errors ============================== #
 
+
 class AnalysisError(StockAnalysisError):
     """Base class for analysis-related errors."""
+
     pass
 
 
 class IndicatorCalculationError(AnalysisError):
     """Raised when technical indicator calculation fails."""
 
-    def __init__(
-        self,
-        indicator_name: str,
-        symbol: str,
-        reason: Optional[str] = None
-    ):
+    def __init__(self, indicator_name: str, symbol: str, reason: Optional[str] = None):
         """
         Initialize the exception.
 
@@ -255,21 +234,14 @@ class IndicatorCalculationError(AnalysisError):
         if reason:
             message += f": {reason}"
 
-        details = {
-            "indicator": indicator_name,
-            "symbol": symbol
-        }
+        details = {"indicator": indicator_name, "symbol": symbol}
         super().__init__(message, details)
 
 
 class SignalGenerationError(AnalysisError):
     """Raised when signal generation fails."""
 
-    def __init__(
-        self,
-        symbol: str,
-        reason: str
-    ):
+    def __init__(self, symbol: str, reason: str):
         """
         Initialize the exception.
 
@@ -278,17 +250,16 @@ class SignalGenerationError(AnalysisError):
             reason: Reason for failure
         """
         message = f"Failed to generate signal for {symbol}: {reason}"
-        details = {
-            "symbol": symbol,
-            "reason": reason
-        }
+        details = {"symbol": symbol, "reason": reason}
         super().__init__(message, details)
 
 
 # ============================== Sentiment Errors ============================== #
 
+
 class SentimentError(StockAnalysisError):
     """Base class for sentiment analysis errors."""
+
     pass
 
 
@@ -299,7 +270,7 @@ class SentimentModelError(SentimentError):
         self,
         model_name: str,
         reason: str,
-        original_exception: Optional[Exception] = None
+        original_exception: Optional[Exception] = None,
     ):
         """
         Initialize the exception.
@@ -330,17 +301,16 @@ class NewsNotFoundError(SentimentError):
             days: Number of days searched
         """
         message = f"No news found for query '{query}' in the last {days} days"
-        details = {
-            "query": query,
-            "days": days
-        }
+        details = {"query": query, "days": days}
         super().__init__(message, details)
 
 
 # ============================== Configuration Errors ============================== #
 
+
 class ConfigurationError(StockAnalysisError):
     """Base class for configuration errors."""
+
     pass
 
 
@@ -356,10 +326,7 @@ class InvalidConfigurationError(ConfigurationError):
             issue: Description of the issue
         """
         message = f"Invalid configuration for '{config_key}': {issue}"
-        details = {
-            "config_key": config_key,
-            "issue": issue
-        }
+        details = {"config_key": config_key, "issue": issue}
         super().__init__(message, details)
 
 
@@ -367,10 +334,7 @@ class MissingDependencyError(ConfigurationError):
     """Raised when a required dependency is not installed."""
 
     def __init__(
-        self,
-        dependency: str,
-        feature: str,
-        install_command: Optional[str] = None
+        self, dependency: str, feature: str, install_command: Optional[str] = None
     ):
         """
         Initialize the exception.
@@ -380,16 +344,11 @@ class MissingDependencyError(ConfigurationError):
             feature: Feature that requires the dependency
             install_command: Command to install the dependency
         """
-        message = (
-            f"Missing dependency '{dependency}' required for {feature}."
-        )
+        message = f"Missing dependency '{dependency}' required for {feature}."
         if install_command:
             message += f" Install with: {install_command}"
 
-        details = {
-            "dependency": dependency,
-            "feature": feature
-        }
+        details = {"dependency": dependency, "feature": feature}
         if install_command:
             details["install_command"] = install_command
 
@@ -398,20 +357,17 @@ class MissingDependencyError(ConfigurationError):
 
 # ============================== File I/O Errors ============================== #
 
+
 class FileOperationError(StockAnalysisError):
     """Base class for file operation errors."""
+
     pass
 
 
 class CacheError(FileOperationError):
     """Raised when cache operations fail."""
 
-    def __init__(
-        self,
-        operation: str,
-        cache_file: str,
-        reason: Optional[str] = None
-    ):
+    def __init__(self, operation: str, cache_file: str, reason: Optional[str] = None):
         """
         Initialize the exception.
 
@@ -424,22 +380,14 @@ class CacheError(FileOperationError):
         if reason:
             message += f": {reason}"
 
-        details = {
-            "operation": operation,
-            "cache_file": cache_file
-        }
+        details = {"operation": operation, "cache_file": cache_file}
         super().__init__(message, details)
 
 
 class ReportGenerationError(FileOperationError):
     """Raised when report generation fails."""
 
-    def __init__(
-        self,
-        report_type: str,
-        output_path: str,
-        reason: str
-    ):
+    def __init__(self, report_type: str, output_path: str, reason: str):
         """
         Initialize the exception.
 
@@ -452,21 +400,19 @@ class ReportGenerationError(FileOperationError):
         details = {
             "report_type": report_type,
             "output_path": output_path,
-            "reason": reason
+            "reason": reason,
         }
         super().__init__(message, details)
 
 
 # ============================== Timeout Errors ============================== #
 
+
 class TimeoutError(StockAnalysisError):
     """Raised when an operation times out."""
 
     def __init__(
-        self,
-        operation: str,
-        timeout_seconds: float,
-        context: Optional[str] = None
+        self, operation: str, timeout_seconds: float, context: Optional[str] = None
     ):
         """
         Initialize the exception.
@@ -480,10 +426,7 @@ class TimeoutError(StockAnalysisError):
         if context:
             message += f": {context}"
 
-        details = {
-            "operation": operation,
-            "timeout": timeout_seconds
-        }
+        details = {"operation": operation, "timeout": timeout_seconds}
         super().__init__(message, details)
 
 
@@ -492,39 +435,32 @@ class TimeoutError(StockAnalysisError):
 __all__ = [
     # Base
     "StockAnalysisError",
-
     # Data
     "DataError",
     "DataFetchError",
     "DataValidationError",
     "InsufficientDataError",
-
     # API
     "APIError",
     "APIKeyMissingError",
     "APIRateLimitError",
     "APIResponseError",
-
     # Analysis
     "AnalysisError",
     "IndicatorCalculationError",
     "SignalGenerationError",
-
     # Sentiment
     "SentimentError",
     "SentimentModelError",
     "NewsNotFoundError",
-
     # Configuration
     "ConfigurationError",
     "InvalidConfigurationError",
     "MissingDependencyError",
-
     # File I/O
     "FileOperationError",
     "CacheError",
     "ReportGenerationError",
-
     # Timeout
     "TimeoutError",
 ]

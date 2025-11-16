@@ -6,7 +6,17 @@ Type definitions for the stock analysis system.
 This module provides comprehensive type hints using TypedDict, Protocol,
 and standard typing constructs to ensure type safety across the codebase.
 """
-from typing import TypedDict, Protocol, Optional, List, Dict, Any, Literal, Union, Callable
+from typing import (
+    TypedDict,
+    Protocol,
+    Optional,
+    List,
+    Dict,
+    Any,
+    Literal,
+    Union,
+    Callable,
+)
 from datetime import datetime
 import pandas as pd
 import numpy as np
@@ -15,17 +25,28 @@ from numpy.typing import NDArray
 
 # ============================== Enums and Literals ============================== #
 
-SignalType = Literal["Strong Buy", "Buy", "Neutral", "Sell", "Strong Sell", "Watch", "NoData", "Error"]
+SignalType = Literal[
+    "Strong Buy", "Buy", "Neutral", "Sell", "Strong Sell", "Watch", "NoData", "Error"
+]
 SentimentType = Literal["positive", "negative", "neutral"]
-TrendType = Literal["uptrend", "downtrend", "sideways", "unknown", "flat",
-                    "continuously_increasing", "continuously_decreasing"]
+TrendType = Literal[
+    "uptrend",
+    "downtrend",
+    "sideways",
+    "unknown",
+    "flat",
+    "continuously_increasing",
+    "continuously_decreasing",
+]
 SentimentEngine = Literal["finbert", "openai", "nltk"]
 
 
 # ============================== News Types ============================== #
 
+
 class NewsArticle(TypedDict, total=False):
     """Represents a news article with metadata."""
+
     title: str
     desc: Optional[str]
     url: Optional[str]
@@ -35,6 +56,7 @@ class NewsArticle(TypedDict, total=False):
 
 class SentimentResult(TypedDict):
     """Sentiment analysis result for a piece of text."""
+
     headline: str
     sentiment: SentimentType
     impact: float  # -2.0 to +2.0
@@ -43,6 +65,7 @@ class SentimentResult(TypedDict):
 
 class SentimentDetail(TypedDict):
     """Aggregated sentiment details."""
+
     pos: int
     neg: int
     neu: int
@@ -51,8 +74,10 @@ class SentimentDetail(TypedDict):
 
 # ============================== Technical Indicators ============================== #
 
+
 class TechnicalIndicators(TypedDict, total=False):
     """Collection of technical indicator values."""
+
     # Price-based
     Close: float
     Open: float
@@ -90,6 +115,7 @@ class TechnicalIndicators(TypedDict, total=False):
 
 class SwingLevels(TypedDict):
     """Support and resistance levels from swing analysis."""
+
     resistance: float
     support: float
     swing_high: float
@@ -98,8 +124,10 @@ class SwingLevels(TypedDict):
 
 # ============================== Signal Types ============================== #
 
+
 class EntryExitLevels(TypedDict, total=False):
     """Entry, stop loss, and target levels for a trade setup."""
+
     entry: Optional[float]
     stop: Optional[float]
     target: Optional[float]
@@ -109,6 +137,7 @@ class EntryExitLevels(TypedDict, total=False):
 
 class SignalData(TypedDict, total=False):
     """Complete signal data for a stock."""
+
     symbol: str
     name: str
     strong: SignalType
@@ -151,8 +180,10 @@ class SignalData(TypedDict, total=False):
 
 # ============================== Market Data Types ============================== #
 
+
 class OHLCVData(TypedDict):
     """OHLCV (Open, High, Low, Close, Volume) data point."""
+
     timestamp: datetime
     Open: float
     High: float
@@ -163,20 +194,24 @@ class OHLCVData(TypedDict):
 
 class MarketBreadth(TypedDict):
     """Market breadth indicators."""
+
     pcr: Optional[float]  # Put-Call Ratio
     context: str  # Interpretation
 
 
 class DailyMAFlags(TypedDict):
     """Daily moving average positioning flags."""
+
     above_50dma: Optional[bool]
     above_200dma: Optional[bool]
 
 
 # ============================== Configuration Types ============================== #
 
+
 class APIConfig(TypedDict, total=False):
     """API configuration settings."""
+
     newsapi_key: Optional[str]
     openai_api_key: Optional[str]
     api_timeout: int
@@ -185,6 +220,7 @@ class APIConfig(TypedDict, total=False):
 
 class ScannerConfig(TypedDict, total=False):
     """Scanner configuration parameters."""
+
     days_lookback: int
     max_stocks: int
     interval: str  # "15m", "1h", "1d", etc.
@@ -200,6 +236,7 @@ class ScannerConfig(TypedDict, total=False):
 
 class IndicatorConfig(TypedDict):
     """Technical indicator calculation parameters."""
+
     rsi_length: int
     macd_fast: int
     macd_slow: int
@@ -219,13 +256,12 @@ class IndicatorConfig(TypedDict):
 
 # ============================== Protocols ============================== #
 
+
 class SentimentAnalyzer(Protocol):
     """Protocol for sentiment analysis engines."""
 
     def classify_headlines(
-        self,
-        headlines: List[str],
-        **kwargs: Any
+        self, headlines: List[str], **kwargs: Any
     ) -> List[SentimentResult]:
         """
         Classify sentiment of headlines.
@@ -240,8 +276,7 @@ class SentimentAnalyzer(Protocol):
         ...
 
     def aggregate_sentiment(
-        self,
-        results: List[SentimentResult]
+        self, results: List[SentimentResult]
     ) -> tuple[float, SentimentDetail]:
         """
         Aggregate individual sentiment results.
@@ -259,11 +294,7 @@ class NewsProvider(Protocol):
     """Protocol for news data providers."""
 
     def fetch_news(
-        self,
-        query: str,
-        since: datetime,
-        limit: int,
-        **kwargs: Any
+        self, query: str, since: datetime, limit: int, **kwargs: Any
     ) -> List[NewsArticle]:
         """
         Fetch news articles matching query.
@@ -283,10 +314,7 @@ class NewsProvider(Protocol):
 class TechnicalAnalyzer(Protocol):
     """Protocol for technical analysis engines."""
 
-    def compute_indicators(
-        self,
-        df: pd.DataFrame
-    ) -> pd.DataFrame:
+    def compute_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Compute technical indicators on OHLCV data.
 
@@ -299,9 +327,7 @@ class TechnicalAnalyzer(Protocol):
         ...
 
     def detect_signals(
-        self,
-        df: pd.DataFrame,
-        sentiment_score: float
+        self, df: pd.DataFrame, sentiment_score: float
     ) -> tuple[SignalType, int]:
         """
         Detect trading signals from indicators.
@@ -318,8 +344,10 @@ class TechnicalAnalyzer(Protocol):
 
 # ============================== Result Types ============================== #
 
+
 class AnalysisResult(TypedDict, total=False):
     """Complete analysis result for a symbol."""
+
     symbol: str
     success: bool
     error: Optional[str]
@@ -330,6 +358,7 @@ class AnalysisResult(TypedDict, total=False):
 
 class ScanResults(TypedDict):
     """Results from scanning multiple symbols."""
+
     scan_time: datetime
     total_symbols: int
     successful: int
@@ -341,8 +370,10 @@ class ScanResults(TypedDict):
 
 # ============================== Cache Types ============================== #
 
+
 class CacheEntry(TypedDict):
     """Cache entry structure."""
+
     key: str
     value: Any
     timestamp: float
@@ -370,8 +401,10 @@ PriceFormatter = Callable[[OptionalFloat], str]
 
 # ============================== Validation Types ============================== #
 
+
 class ValidationResult(TypedDict):
     """Result of data validation."""
+
     is_valid: bool
     errors: List[str]
     warnings: List[str]
@@ -379,6 +412,7 @@ class ValidationResult(TypedDict):
 
 class DataQuality(TypedDict):
     """Data quality metrics."""
+
     completeness: float  # 0.0 to 1.0
     missing_fields: List[str]
     invalid_values: Dict[str, int]
@@ -393,42 +427,33 @@ __all__ = [
     "SentimentType",
     "TrendType",
     "SentimentEngine",
-
     # News Types
     "NewsArticle",
     "SentimentResult",
     "SentimentDetail",
-
     # Technical Types
     "TechnicalIndicators",
     "SwingLevels",
-
     # Signal Types
     "EntryExitLevels",
     "SignalData",
-
     # Market Data
     "OHLCVData",
     "MarketBreadth",
     "DailyMAFlags",
-
     # Configuration
     "APIConfig",
     "ScannerConfig",
     "IndicatorConfig",
-
     # Protocols
     "SentimentAnalyzer",
     "NewsProvider",
     "TechnicalAnalyzer",
-
     # Results
     "AnalysisResult",
     "ScanResults",
-
     # Cache
     "CacheEntry",
-
     # Utilities
     "NumericValue",
     "NumericArray",
@@ -440,7 +465,6 @@ __all__ = [
     "DataTransform",
     "SignalFilter",
     "PriceFormatter",
-
     # Validation
     "ValidationResult",
     "DataQuality",

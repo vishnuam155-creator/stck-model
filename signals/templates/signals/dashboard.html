@@ -1,0 +1,264 @@
+{% extends 'signals/base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard - Trading Signals{% endblock %}
+{% block page_title %}Trading Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Signals -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Signals</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_signals }}</p>
+            </div>
+            <div class="bg-blue-100 rounded-full p-3">
+                <i class="fas fa-signal text-blue-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Signals -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Buy Signals</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ buy_signals }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <i class="fas fa-arrow-up text-green-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sell Signals -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Sell Signals</p>
+                <p class="text-3xl font-bold text-red-600 mt-2">{{ sell_signals }}</p>
+            </div>
+            <div class="bg-red-100 rounded-full p-3">
+                <i class="fas fa-arrow-down text-red-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average RRR -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Avg Risk:Reward</p>
+                <p class="text-3xl font-bold text-purple-600 mt-2">1:{{ avg_rrr|floatformat:1 }}</p>
+            </div>
+            <div class="bg-purple-100 rounded-full p-3">
+                <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Overview -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Capital & Profit -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            <i class="fas fa-rupee-sign text-green-600 mr-2"></i>
+            Financial Overview
+        </h3>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Total Capital Required</span>
+                <span class="text-xl font-bold text-gray-900">₹{{ total_capital_required|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="h-px bg-gray-200"></div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Total Potential Profit</span>
+                <span class="text-xl font-bold text-green-600">₹{{ total_potential_profit|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="h-px bg-gray-200"></div>
+            {% if total_capital_required > 0 %}
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Potential ROI</span>
+                <span class="text-xl font-bold text-purple-600">
+                    {{ total_potential_profit|floatformat:0|add:"0"|mul:"100"|div:total_capital_required|floatformat:1 }}%
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Strategy Breakdown -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
+            Strategy Breakdown
+        </h3>
+        <div class="space-y-3">
+            {% for item in strategy_breakdown %}
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm text-gray-600">
+                        {% if item.strategy == 'ORB' %}
+                            Opening Range Breakout
+                        {% elif item.strategy == 'VWAP_PULLBACK' %}
+                            VWAP Pullback
+                        {% elif item.strategy == 'CONFLUENCE_REVERSAL' %}
+                            Confluence Reversal
+                        {% endif %}
+                    </span>
+                    <span class="text-sm font-semibold text-gray-900">{{ item.count }} signals</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full"
+                         style="width: {% widthratio item.count total_signals 100 %}%"></div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 text-center py-4">No data available</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Top Signals -->
+<div class="bg-white rounded-xl shadow-md card-shadow mb-8">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">
+            <i class="fas fa-star text-yellow-500 mr-2"></i>
+            Top Signals by Confidence
+        </h3>
+        <a href="{% url 'signals:signals_list' %}" class="text-purple-600 hover:text-purple-700 font-medium text-sm">
+            View All <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Signal</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strategy</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entry</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RRR</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for signal in top_signals %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-bold text-gray-900">{{ signal.symbol }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if signal.signal_type == 'BUY' %}
+                        <span class="badge-buy text-white text-xs font-semibold px-3 py-1 rounded-full">
+                            <i class="fas fa-arrow-up"></i> BUY
+                        </span>
+                        {% else %}
+                        <span class="badge-sell text-white text-xs font-semibold px-3 py-1 rounded-full">
+                            <i class="fas fa-arrow-down"></i> SELL
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {{ signal.get_strategy_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        ₹{{ signal.entry_price }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                        {% if signal.signal_type == 'BUY' %}class="text-green-600"{% else %}class="text-red-600"{% endif %}>
+                        ₹{{ signal.target_price }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-semibold text-purple-600">1:{{ signal.rrr }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <span class="text-sm font-bold text-gray-900">{{ signal.confidence_score }}%</span>
+                            <div class="ml-2 w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full"
+                                     style="width: {{ signal.confidence_score }}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <a href="{% url 'signals:signal_detail' signal.id %}"
+                           class="text-purple-600 hover:text-purple-900 font-medium">
+                            View <i class="fas fa-external-link-alt ml-1"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-2 text-gray-300"></i>
+                        <p>No signals available. Run the scanner to generate signals.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Scan Sessions -->
+{% if recent_scans %}
+<div class="bg-white rounded-xl shadow-md card-shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800">
+            <i class="fas fa-history text-gray-600 mr-2"></i>
+            Recent Scan Sessions
+        </h3>
+    </div>
+    <div class="p-6">
+        <div class="space-y-3">
+            {% for scan in recent_scans %}
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-green-100 rounded-full p-2">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">
+                            {{ scan.timestamp|date:"M d, Y - h:i A" }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            {{ scan.total_signals }} signals ({{ scan.buy_signals }} buy, {{ scan.sell_signals }} sell)
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">₹{{ scan.total_potential_profit|floatformat:0|intcomma }}</p>
+                    <p class="text-xs text-gray-500">Potential Profit</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh dashboard stats every 30 seconds
+    setInterval(() => {
+        fetch('{% url "signals:api_dashboard_stats" %}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Dashboard stats updated:', data);
+                // You can update specific elements here if needed
+            })
+            .catch(error => console.error('Error fetching stats:', error));
+    }, 30000);
+</script>
+{% endblock %}

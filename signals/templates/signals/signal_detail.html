@@ -1,0 +1,333 @@
+{% extends 'signals/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ signal.symbol }} - Signal Detail{% endblock %}
+{% block page_title %}{{ signal.symbol }} Signal Detail{% endblock %}
+
+{% block content %}
+<!-- Back Button -->
+<div class="mb-6">
+    <a href="{% url 'signals:signals_list' %}" class="inline-flex items-center text-purple-600 hover:text-purple-700">
+        <i class="fas fa-arrow-left mr-2"></i>Back to All Signals
+    </a>
+</div>
+
+<!-- Signal Header Card -->
+<div class="bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl shadow-lg p-8 text-white mb-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">{{ signal.symbol }}</h1>
+            <div class="flex items-center space-x-4">
+                {% if signal.signal_type == 'BUY' %}
+                <span class="bg-green-500 text-white text-lg font-semibold px-6 py-2 rounded-full">
+                    <i class="fas fa-arrow-up"></i> BUY SIGNAL
+                </span>
+                {% else %}
+                <span class="bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-full">
+                    <i class="fas fa-arrow-down"></i> SELL SIGNAL
+                </span>
+                {% endif %}
+                <span class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm">
+                    {{ signal.get_strategy_display }}
+                </span>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="bg-white bg-opacity-20 rounded-lg px-6 py-4">
+                <p class="text-sm opacity-90 mb-1">Confidence Score</p>
+                <p class="text-4xl font-bold">{{ signal.confidence_score }}%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Price Levels Card -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 card-shadow">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">
+            <i class="fas fa-chart-line text-blue-600 mr-2"></i>Price Levels
+        </h3>
+        <div class="grid grid-cols-2 gap-6">
+            <div class="bg-blue-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Current Price</p>
+                <p class="text-3xl font-bold text-gray-900">₹{{ signal.current_price }}</p>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Entry Price</p>
+                <p class="text-3xl font-bold text-purple-600">₹{{ signal.entry_price }}</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Stop Loss</p>
+                <p class="text-3xl font-bold text-red-600">₹{{ signal.stop_loss }}</p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Risk: {{ signal.potential_loss|floatformat:2 }}%
+                </p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-4">
+                <p class="text-sm text-gray-600 mb-1">Target Price</p>
+                <p class="text-3xl font-bold text-green-600">₹{{ signal.target_price }}</p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Profit: {{ signal.potential_profit|floatformat:2 }}%
+                </p>
+            </div>
+        </div>
+
+        <!-- Risk Reward Visualization -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p class="text-sm font-semibold text-gray-700 mb-3">Risk:Reward Ratio</p>
+            <div class="flex items-center space-x-2">
+                <div class="flex-1 bg-red-200 rounded-full h-4 relative">
+                    <div class="absolute inset-y-0 left-0 bg-red-500 rounded-full" style="width: 33.33%"></div>
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                        Risk (1)
+                    </span>
+                </div>
+                <span class="text-2xl font-bold text-gray-700">:</span>
+                <div class="flex-1 bg-green-200 rounded-full h-4 relative" style="flex: {{ signal.rrr }}">
+                    <div class="absolute inset-y-0 left-0 bg-green-500 rounded-full w-full"></div>
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                        Reward ({{ signal.rrr }})
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Position Details Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">
+            <i class="fas fa-wallet text-green-600 mr-2"></i>Position Details
+        </h3>
+        <div class="space-y-4">
+            <div class="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
+                <p class="text-sm text-gray-600 mb-1">Position Size</p>
+                <p class="text-2xl font-bold text-gray-900">{{ signal.position_size }}</p>
+                <p class="text-xs text-gray-500">shares</p>
+            </div>
+            <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg">
+                <p class="text-sm text-gray-600 mb-1">Capital Required</p>
+                <p class="text-2xl font-bold text-gray-900">₹{{ signal.capital_required|floatformat:0|intcomma }}</p>
+            </div>
+            <div class="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg">
+                <p class="text-sm text-gray-600 mb-1">Max Risk</p>
+                <p class="text-2xl font-bold text-red-600">₹{{ signal.max_risk|floatformat:0|intcomma }}</p>
+            </div>
+            <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                <p class="text-sm text-gray-600 mb-1">Potential Reward</p>
+                <p class="text-2xl font-bold text-green-600">₹{{ signal.reward_amount|floatformat:0|intcomma }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Indicators -->
+<div class="bg-white rounded-xl shadow-md p-6 card-shadow mb-6">
+    <h3 class="text-xl font-semibold text-gray-800 mb-6">
+        <i class="fas fa-chart-bar text-orange-600 mr-2"></i>Technical Indicators
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {% if signal.rsi %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">RSI (14)</p>
+            <p class="text-2xl font-bold
+                {% if signal.rsi < 30 %}text-green-600
+                {% elif signal.rsi > 70 %}text-red-600
+                {% else %}text-gray-900{% endif %}">
+                {{ signal.rsi|floatformat:1 }}
+            </p>
+        </div>
+        {% endif %}
+
+        {% if signal.vwap %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">VWAP</p>
+            <p class="text-xl font-bold text-gray-900">₹{{ signal.vwap|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.atr %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">ATR (14)</p>
+            <p class="text-xl font-bold text-gray-900">{{ signal.atr|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.volume_ratio %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">Volume Ratio</p>
+            <p class="text-xl font-bold text-blue-600">{{ signal.volume_ratio|floatformat:1 }}x</p>
+        </div>
+        {% endif %}
+
+        {% if signal.ema_short %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">EMA (Short)</p>
+            <p class="text-xl font-bold text-gray-900">₹{{ signal.ema_short|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.ema_long %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">EMA (Long)</p>
+            <p class="text-xl font-bold text-gray-900">₹{{ signal.ema_long|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.macd %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">MACD</p>
+            <p class="text-lg font-bold text-gray-900">{{ signal.macd|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.macd_signal %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">MACD Signal</p>
+            <p class="text-lg font-bold text-gray-900">{{ signal.macd_signal|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.support_level %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">Support</p>
+            <p class="text-xl font-bold text-green-600">₹{{ signal.support_level|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.resistance_level %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">Resistance</p>
+            <p class="text-xl font-bold text-red-600">₹{{ signal.resistance_level|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.orb_high %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">ORB High</p>
+            <p class="text-lg font-bold text-gray-900">₹{{ signal.orb_high|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+
+        {% if signal.orb_low %}
+        <div class="p-4 bg-gray-50 rounded-lg text-center">
+            <p class="text-xs text-gray-600 mb-2">ORB Low</p>
+            <p class="text-lg font-bold text-gray-900">₹{{ signal.orb_low|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Confluence Factors -->
+{% if signal.confluences %}
+<div class="bg-white rounded-xl shadow-md p-6 card-shadow mb-6">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-check-double text-green-600 mr-2"></i>Confluence Factors
+    </h3>
+    <div class="flex flex-wrap gap-3">
+        {% for confluence in signal.confluences_list %}
+        <div class="flex items-center space-x-2 bg-gradient-to-r from-green-100 to-emerald-100 px-4 py-2 rounded-full">
+            <i class="fas fa-check-circle text-green-600"></i>
+            <span class="text-sm font-medium text-green-900">{{ confluence }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Related News -->
+{% if news_items %}
+<div class="bg-white rounded-xl shadow-md p-6 card-shadow mb-6">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-newspaper text-blue-600 mr-2"></i>Related News
+    </h3>
+    <div class="space-y-3">
+        {% for news in news_items %}
+        <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900 mb-1">{{ news.title }}</h4>
+                    <div class="flex items-center space-x-3 text-xs text-gray-500">
+                        <span><i class="far fa-clock mr-1"></i>{{ news.published_at|date:"M d, Y" }}</span>
+                        <span><i class="fas fa-source mr-1"></i>{{ news.source }}</span>
+                    </div>
+                </div>
+                <div>
+                    {% if news.sentiment == 'POSITIVE' %}
+                    <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">
+                        <i class="fas fa-smile"></i> Positive
+                    </span>
+                    {% elif news.sentiment == 'NEGATIVE' %}
+                    <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">
+                        <i class="fas fa-frown"></i> Negative
+                    </span>
+                    {% else %}
+                    <span class="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full">
+                        <i class="fas fa-meh"></i> Neutral
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Related Signals -->
+{% if related_signals %}
+<div class="bg-white rounded-xl shadow-md p-6 card-shadow">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-history text-purple-600 mr-2"></i>Recent Signals for {{ signal.symbol }}
+    </h3>
+    <div class="space-y-3">
+        {% for related in related_signals %}
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+            <div class="flex items-center space-x-4">
+                {% if related.signal_type == 'BUY' %}
+                <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">BUY</span>
+                {% else %}
+                <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full">SELL</span>
+                {% endif %}
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">{{ related.get_strategy_display }}</p>
+                    <p class="text-xs text-gray-500">{{ related.timestamp|date:"M d, Y - h:i A" }}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-bold text-gray-900">₹{{ related.entry_price }}</p>
+                <p class="text-xs text-gray-500">{{ related.confidence_score }}% confidence</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Signal Metadata -->
+<div class="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+            <span class="font-semibold">Created:</span>
+            {{ signal.created_at|date:"M d, Y - h:i A" }}
+        </div>
+        <div>
+            <span class="font-semibold">Updated:</span>
+            {{ signal.updated_at|date:"M d, Y - h:i A" }}
+        </div>
+        <div>
+            <span class="font-semibold">Status:</span>
+            {% if signal.is_active %}
+            <span class="text-green-600 font-semibold">Active</span>
+            {% else %}
+            <span class="text-gray-500">Inactive</span>
+            {% endif %}
+        </div>
+        <div>
+            <span class="font-semibold">Signal ID:</span>
+            #{{ signal.id }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -17,18 +17,27 @@ load_dotenv()
 
 # ============================== API Configuration ============================== #
 
+
 @dataclass(frozen=True)
 class APISettings:
     """API keys and endpoints configuration."""
 
     # API Keys (from environment)
     NEWSAPI_KEY: Optional[str] = field(default_factory=lambda: os.getenv("NEWSAPI_KEY"))
-    OPENAI_API_KEY: Optional[str] = field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
-    NEWS_API_KEY: Optional[str] = field(default_factory=lambda: os.getenv("NEWS_API_KEY"))
+    OPENAI_API_KEY: Optional[str] = field(
+        default_factory=lambda: os.getenv("OPENAI_API_KEY")
+    )
+    NEWS_API_KEY: Optional[str] = field(
+        default_factory=lambda: os.getenv("NEWS_API_KEY")
+    )
 
     # API Endpoints
-    NSE_NIFTY50_CSV: str = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
-    NSE_OPTION_CHAIN_NIFTY: str = "https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
+    NSE_NIFTY50_CSV: str = (
+        "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
+    )
+    NSE_OPTION_CHAIN_NIFTY: str = (
+        "https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
+    )
     NEWSAPI_ENDPOINT: str = "https://newsapi.org/v2/everything"
     OPENAI_ENDPOINT: str = "https://api.openai.com/v1/chat/completions"
     GDELT_API_ENDPOINT: str = "https://api.gdeltproject.org/api/v2/doc/doc"
@@ -46,6 +55,7 @@ class APISettings:
 
 
 # ============================== Data Configuration ============================== #
+
 
 @dataclass(frozen=True)
 class DataSettings:
@@ -73,6 +83,7 @@ class DataSettings:
 
 
 # ============================== Technical Indicators Configuration ============================== #
+
 
 @dataclass(frozen=True)
 class IndicatorSettings:
@@ -120,6 +131,7 @@ class IndicatorSettings:
 
 # ============================== Signal Generation Configuration ============================== #
 
+
 @dataclass(frozen=True)
 class SignalSettings:
     """Signal generation and scoring parameters."""
@@ -149,6 +161,7 @@ class SignalSettings:
 
 
 # ============================== Sentiment Configuration ============================== #
+
 
 @dataclass(frozen=True)
 class SentimentSettings:
@@ -187,22 +200,63 @@ class SentimentSettings:
 
 # ============================== NIFTY 50 Symbols ============================== #
 
+
 @dataclass(frozen=True)
 class SymbolSettings:
     """Stock symbol lists and mappings."""
 
     # Full NIFTY 50 list with Yahoo Finance suffix
     NIFTY50_SYMBOLS: tuple[str, ...] = (
-        "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "ICICIBANK.NS", "INFY.NS",
-        "ITC.NS", "LT.NS", "SBIN.NS", "BHARTIARTL.NS", "KOTAKBANK.NS",
-        "HINDUNILVR.NS", "AXISBANK.NS", "HCLTECH.NS", "MARUTI.NS", "NTPC.NS",
-        "BAJFINANCE.NS", "TITAN.NS", "ASIANPAINT.NS", "SUNPHARMA.NS", "ULTRACEMCO.NS",
-        "POWERGRID.NS", "WIPRO.NS", "ONGC.NS", "ADANIENT.NS", "ADANIPORTS.NS",
-        "NESTLEIND.NS", "BAJAJFINSV.NS", "M&M.NS", "TATASTEEL.NS", "HEROMOTOCO.NS",
-        "COALINDIA.NS", "LTIM.NS", "GRASIM.NS", "INDUSINDBK.NS", "DRREDDY.NS",
-        "JSWSTEEL.NS", "HDFCLIFE.NS", "CIPLA.NS", "BRITANNIA.NS", "DIVISLAB.NS",
-        "EICHERMOT.NS", "TECHM.NS", "BPCL.NS", "UPL.NS", "HINDALCO.NS",
-        "APOLLOHOSP.NS", "BAJAJ-AUTO.NS", "TATAMOTORS.NS", "TATACONSUM.NS", "SHRIRAMFIN.NS"
+        "RELIANCE.NS",
+        "TCS.NS",
+        "HDFCBANK.NS",
+        "ICICIBANK.NS",
+        "INFY.NS",
+        "ITC.NS",
+        "LT.NS",
+        "SBIN.NS",
+        "BHARTIARTL.NS",
+        "KOTAKBANK.NS",
+        "HINDUNILVR.NS",
+        "AXISBANK.NS",
+        "HCLTECH.NS",
+        "MARUTI.NS",
+        "NTPC.NS",
+        "BAJFINANCE.NS",
+        "TITAN.NS",
+        "ASIANPAINT.NS",
+        "SUNPHARMA.NS",
+        "ULTRACEMCO.NS",
+        "POWERGRID.NS",
+        "WIPRO.NS",
+        "ONGC.NS",
+        "ADANIENT.NS",
+        "ADANIPORTS.NS",
+        "NESTLEIND.NS",
+        "BAJAJFINSV.NS",
+        "M&M.NS",
+        "TATASTEEL.NS",
+        "HEROMOTOCO.NS",
+        "COALINDIA.NS",
+        "LTIM.NS",
+        "GRASIM.NS",
+        "INDUSINDBK.NS",
+        "DRREDDY.NS",
+        "JSWSTEEL.NS",
+        "HDFCLIFE.NS",
+        "CIPLA.NS",
+        "BRITANNIA.NS",
+        "DIVISLAB.NS",
+        "EICHERMOT.NS",
+        "TECHM.NS",
+        "BPCL.NS",
+        "UPL.NS",
+        "HINDALCO.NS",
+        "APOLLOHOSP.NS",
+        "BAJAJ-AUTO.NS",
+        "TATAMOTORS.NS",
+        "TATACONSUM.NS",
+        "SHRIRAMFIN.NS",
     )
 
     # Symbol suffix for Yahoo Finance
@@ -210,12 +264,19 @@ class SymbolSettings:
 
     # Default test symbols (for faster development/testing)
     TEST_SYMBOLS: tuple[str, ...] = (
-        "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "ICICIBANK.NS",
-        "INFY.NS", "ITC.NS", "LT.NS", "SBIN.NS"
+        "RELIANCE.NS",
+        "TCS.NS",
+        "HDFCBANK.NS",
+        "ICICIBANK.NS",
+        "INFY.NS",
+        "ITC.NS",
+        "LT.NS",
+        "SBIN.NS",
     )
 
 
 # ============================== File and Path Configuration ============================== #
+
 
 @dataclass
 class PathSettings:
@@ -239,7 +300,12 @@ class PathSettings:
 
     def __post_init__(self):
         """Create directories if they don't exist."""
-        for directory in [self.CACHE_DIR, self.OUTPUT_DIR, self.CHARTS_DIR, self.REPORTS_DIR]:
+        for directory in [
+            self.CACHE_DIR,
+            self.OUTPUT_DIR,
+            self.CHARTS_DIR,
+            self.REPORTS_DIR,
+        ]:
             os.makedirs(directory, exist_ok=True)
 
     def get_sentiment_cache_path(self) -> str:
@@ -265,6 +331,7 @@ class PathSettings:
 
 
 # ============================== Scanner Configuration ============================== #
+
 
 @dataclass
 class ScannerSettings:
@@ -292,6 +359,7 @@ class ScannerSettings:
 
 # ============================== Market Context Configuration ============================== #
 
+
 @dataclass(frozen=True)
 class MarketSettings:
     """Market context and breadth indicators configuration."""
@@ -315,6 +383,7 @@ class MarketSettings:
 
 # ============================== Logging Configuration ============================== #
 
+
 @dataclass(frozen=True)
 class LoggingSettings:
     """Logging configuration."""
@@ -327,12 +396,14 @@ class LoggingSettings:
 
 # ============================== Global Configuration Instance ============================== #
 
+
 class Config:
     """
     Global configuration singleton.
 
     Access configuration via: Config.api, Config.data, etc.
     """
+
     api: APISettings = APISettings()
     data: DataSettings = DataSettings()
     indicators: IndicatorSettings = IndicatorSettings()
@@ -363,10 +434,14 @@ class Config:
 
         # Check API keys
         if not cls.api.NEWSAPI_KEY and not cls.api.NEWS_API_KEY:
-            messages.append("WARNING: No NewsAPI key configured. News fetching may be limited.")
+            messages.append(
+                "WARNING: No NewsAPI key configured. News fetching may be limited."
+            )
 
         if not cls.api.OPENAI_API_KEY:
-            messages.append("WARNING: No OpenAI API key configured. OpenAI sentiment unavailable.")
+            messages.append(
+                "WARNING: No OpenAI API key configured. OpenAI sentiment unavailable."
+            )
 
         # Check indicator sanity
         if cls.indicators.SMA_SHORT >= cls.indicators.SMA_LONG:
@@ -377,7 +452,9 @@ class Config:
 
         # Check signal thresholds
         if cls.signals.MIN_RRR < 1.0:
-            messages.append("WARNING: MIN_RRR less than 1.0 indicates unfavorable risk/reward")
+            messages.append(
+                "WARNING: MIN_RRR less than 1.0 indicates unfavorable risk/reward"
+            )
 
         return messages
 
