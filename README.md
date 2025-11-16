@@ -4,12 +4,13 @@ A comprehensive stock analysis system for scanning NIFTY 50 stocks with technica
 
 ## Features
 
-- **Technical Analysis**: RSI, MACD, Stochastic Oscillator, Moving Averages (SMA/EMA), ATR
+- **Technical Analysis**: RSI, MACD, Stochastic Oscillator, Moving Averages (SMA/EMA), ATR, VWAP, Bollinger Bands
 - **News Sentiment**: Integration with NewsAPI, GDELT, Google News RSS, and FinBERT/OpenAI sentiment analysis
 - **Signal Generation**: Automated buy/sell signals with entry, stop-loss, and target levels
-- **Risk Management**: Risk-reward ratio (RRR) calculation and position sizing
+- **Risk Management**: Risk-reward ratio (RRR) calculation and position sizing with 1% capital rule
+- **Intraday Trading**: Professional intraday system with ORB, VWAP pullback, and confluence strategies
 - **Market Breadth**: NIFTY Put-Call Ratio (PCR) for market context
-- **Multiple Scanners**: Three scanner implementations with different features
+- **Multiple Scanners**: Four scanner implementations with different features
 - **Type Safety**: Comprehensive type definitions using TypedDict and Protocol
 - **Error Handling**: Custom exception hierarchy for precise error management
 - **Configuration Management**: Centralized configuration with validation
@@ -18,19 +19,20 @@ A comprehensive stock analysis system for scanning NIFTY 50 stocks with technica
 
 ```
 stck-model/
-├── StockFinder.py           # Main scanner with FinBERT/NLTK sentiment
-├── nifty50_scanner.py        # Scanner with OpenAI sentiment
-├── nifty50_scanner_.py       # Enhanced scanner with both engines
-├── types_definitions.py      # Comprehensive type definitions
-├── config.py                 # Configuration management
-├── exceptions.py             # Custom exception classes
-├── utils.py                  # Utility functions
-├── requirements.txt          # Python dependencies
-├── .env                      # Environment variables (create this)
-├── .cache/                   # Sentiment cache (auto-created)
-├── output/                   # CSV results (auto-created)
-├── reports/                  # Markdown reports (auto-created)
-└── charts/                   # HTML charts (auto-created)
+├── StockFinder.py                 # Main scanner with FinBERT/NLTK sentiment
+├── nifty50_scanner.py              # Scanner with OpenAI sentiment
+├── nifty50_scanner_.py             # Enhanced scanner with both engines
+├── intraday_trading_system.py      # 🔥 Professional intraday trading system
+├── types_definitions.py            # Comprehensive type definitions
+├── config.py                       # Configuration management
+├── exceptions.py                   # Custom exception classes
+├── utils.py                        # Utility functions
+├── requirements.txt                # Python dependencies
+├── .env                            # Environment variables (create this)
+├── .cache/                         # Sentiment cache (auto-created)
+├── output/                         # CSV results (auto-created)
+├── reports/                        # Markdown reports (auto-created)
+└── charts/                         # HTML charts (auto-created)
 ```
 
 ## Installation
@@ -164,6 +166,204 @@ python nifty50_scanner_.py --sentiment finbert --days 3 --limit 50 --out results
 - `results.csv`: Detailed analysis
 - `results.md`: Markdown summary table
 - `charts/*.html`: Interactive charts (if --charts)
+
+### intraday_trading_system.py - 🔥 Professional Intraday Trading System
+
+**Features**: Complete intraday trading framework with ORB, VWAP pullback, confluence strategies, and professional risk management
+
+This is a comprehensive intraday trading system implementing a 4-phase systematic approach:
+
+1. **Pre-Market Preparation** (8:00-9:15 IST)
+   - Liquidity filtering (NIFTY 100 stocks with >1M daily volume)
+   - Volatility filtering (optimal ATR range)
+   - Pre-market gap detection (>2% gaps)
+   - News catalyst scanning
+
+2. **Technical Analysis Toolkit**
+   - VWAP (Volume Weighted Average Price)
+   - RSI (14) with trend support levels
+   - MACD (12,26,9) with histogram
+   - EMA (9, 21) crossovers
+   - Bollinger Bands for squeeze detection
+   - ATR-based stop-loss and targets
+   - Support/Resistance levels
+   - Volume analysis (3-5x breakout confirmation)
+
+3. **High-Probability Trade Setups**
+   - **Opening Range Breakout (ORB)**: First 15-minute range breakout with volume
+   - **VWAP Pullback**: Buy pullbacks to VWAP in uptrends
+   - **Confluence Reversal**: Multiple indicators at S/R levels
+
+4. **Risk Management** (The Foundation)
+   - **1% Capital Rule**: Never risk >1% per trade
+   - **1:2 Risk-Reward Ratio**: Minimum 1:2 RRR on all trades
+   - **Position Sizing**: Automatic calculation based on risk
+   - **ATR-based exits**: Dynamic stop-loss and targets
+
+```bash
+# Basic scan with default capital (₹1 Lakh)
+python intraday_trading_system.py
+
+# Custom capital and number of stocks
+python intraday_trading_system.py --capital 200000 --stocks 50
+
+# Fast scan (skip liquidity/volatility filters)
+python intraday_trading_system.py --skip-filters --stocks 20
+
+# Full professional scan
+python intraday_trading_system.py --capital 500000 --stocks 100 --output my_trades.csv
+```
+
+**Arguments**:
+- `--capital`: Trading capital in ₹ (default: 100000)
+- `--stocks`: Number of stocks to scan (default: 30)
+- `--skip-filters`: Skip liquidity/volatility filters for faster execution
+- `--output`: Output CSV file name (default: intraday_signals.csv)
+
+**Output Table Columns**:
+
+| Column | Description |
+|--------|-------------|
+| **Symbol** | Stock symbol (without .NS suffix) |
+| **Signal** | BUY or SELL |
+| **Strategy** | ORB, CONFLUENCE_REVERSAL, or VWAP_PULLBACK |
+| **Entry** | Entry price (₹) |
+| **Stop Loss** | Stop-loss price (₹) |
+| **Target** | Target price (₹) |
+| **Current** | Current market price (₹) |
+| **RRR** | Risk-Reward Ratio (always ≥ 1:2) |
+| **Position Size** | Number of shares to buy/sell |
+| **Capital Required** | Total capital needed for position |
+| **Risk** | Maximum loss amount (₹) |
+| **Reward** | Potential profit amount (₹) |
+| **Confidence** | Signal confidence score (0-100%) |
+| **RSI** | RSI (14) value |
+| **VWAP** | VWAP price level |
+| **ATR** | Average True Range |
+| **Volume vs Avg** | Current volume vs 20-period average |
+| **Confluences** | List of confirming factors |
+| **Time** | Signal generation time (IST) |
+
+**Example Output**:
+
+```
+Symbol  Signal  Strategy           Entry   Stop Loss  Target  RRR  Position Size  Capital Required  Risk      Reward    Confidence
+------  ------  -----------------  ------  ---------  ------  ---  -------------  ----------------  --------  --------  ----------
+RELIANCE BUY    ORB                2450.00 2435.00    2480.00 2.0  67             ₹164,150          ₹1,005    ₹2,010    80%
+TCS     BUY    VWAP_PULLBACK      3520.00 3505.00    3550.00 2.0  67             ₹235,840          ₹1,005    ₹2,010    60%
+TATASTEEL SELL  CONFLUENCE_REVERSAL 115.50  117.00     112.50  2.0  667            ₹77,049           ₹1,000    ₹2,001    100%
+```
+
+**Trading Workflow**:
+
+1. **Pre-Market (8:00-9:00 AM)**: Run the scanner to get your watchlist
+2. **Market Open (9:15 AM)**: Monitor ORB signals for first 30 minutes
+3. **Throughout the Day**: Watch for VWAP pullbacks and confluence setups
+4. **Entry**: Only enter when ALL confluences align
+5. **Execution**: Set stop-loss IMMEDIATELY after entry
+6. **Management**: Trail stop to breakeven after 1:1 RRR
+7. **Exit**: Take profit at target or stop-loss hit - NO EXCEPTIONS
+
+**Risk Management Formulas**:
+
+```python
+# Position Sizing
+Risk per Trade (₹) = Capital × 1%
+Risk per Share = |Entry - Stop Loss|
+Position Size = Risk per Trade ÷ Risk per Share
+
+# Example
+Capital = ₹100,000
+Max Risk = ₹1,000 (1%)
+Entry = ₹2450
+Stop = ₹2435
+Risk per Share = ₹15
+Position Size = 1000 ÷ 15 = 66 shares
+
+# Risk-Reward Calculation
+Risk = Entry - Stop Loss
+Reward = Target - Entry
+RRR = Reward ÷ Risk (must be ≥ 2.0)
+```
+
+**Professional Trading Rules**:
+
+1. ✅ **DO**:
+   - Always wait for volume confirmation (3-5x average)
+   - Set stop-loss BEFORE entering trade
+   - Only take trades with RRR ≥ 1:2
+   - Respect the 1% capital rule
+   - Monitor on 5-minute charts
+   - Trail stop-loss to breakeven after 1:1 RRR
+   - Keep a trading journal
+
+2. ❌ **DON'T**:
+   - Never move stop-loss farther away
+   - Don't average down on losing positions
+   - Don't take breakouts without volume
+   - Don't risk more than 1% per trade
+   - Don't trade illiquid stocks
+   - Don't ignore the stop-loss
+   - Don't revenge trade after a loss
+
+**Strategy Details**:
+
+### Opening Range Breakout (ORB)
+- **Setup**: Mark high/low of first 15 minutes (9:15-9:30 AM)
+- **Entry**: Price breaks above/below range with 3-5x volume
+- **Stop**: ORB midpoint
+- **Target**: 1:2 RRR from entry
+- **Best For**: Strong trending days with clear direction
+
+### VWAP Pullback
+- **Setup**: Price in uptrend (above VWAP), pulls back to VWAP
+- **Entry**: Price bounces off VWAP (dynamic support)
+- **Stop**: 1% below VWAP
+- **Target**: 1:2 RRR from entry
+- **Best For**: Trending markets with healthy pullbacks
+
+### Confluence Reversal
+- **Setup**: Price at support/resistance + 3+ indicators align
+- **Entry**: Bullish pattern at support OR bearish pattern at resistance
+- **Stop**: ATR-based or just beyond S/R level
+- **Target**: Next S/R level or ATR-based
+- **Best For**: Range-bound markets with clear levels
+
+**Confluence Factors**:
+- ✓ At Support/Resistance level
+- ✓ RSI oversold (<30) or overbought (>70)
+- ✓ MACD bullish/bearish crossover
+- ✓ Price above/below VWAP
+- ✓ EMA crossover (9/21)
+- ✓ High volume confirmation
+- ✓ ORB breakout/breakdown
+
+**Why This System Works**:
+
+1. **Liquidity First**: Only trades highly liquid stocks (safety)
+2. **Optimal Volatility**: Avoids both stagnant and chaotic stocks
+3. **Multiple Timeframes**: Uses pre-market, ORB, and intraday data
+4. **Confluence**: Requires multiple confirming signals
+5. **Risk Management**: Mathematical edge through 1:2 RRR
+6. **Position Sizing**: Never over-leveraged
+7. **Professional Execution**: Based on institutional trading methods (VWAP)
+
+**Mathematical Edge**:
+
+With 1:2 RRR, you only need 40% win rate to be profitable:
+
+```
+10 Trades Example:
+- Win Rate: 40% (4 wins, 6 losses)
+- Risk per Trade: ₹1,000
+- Reward per Trade: ₹2,000
+
+Total Losses: 6 × ₹1,000 = -₹6,000
+Total Profits: 4 × ₹2,000 = +₹8,000
+Net Profit: +₹2,000 (20% return on capital)
+```
+
+This is the professional trader's edge: disciplined risk management allows profitability even with more losses than wins.
 
 ## Configuration
 
