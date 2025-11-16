@@ -83,7 +83,7 @@
             <div class="flex justify-between items-center">
                 <span class="text-gray-600">Potential ROI</span>
                 <span class="text-xl font-bold text-purple-600">
-                    {{ total_potential_profit|floatformat:0|add:"0"|mul:"100"|div:total_capital_required|floatformat:1 }}%
+                    {{ potential_roi|floatformat:1 }}%
                 </span>
             </div>
             {% endif %}

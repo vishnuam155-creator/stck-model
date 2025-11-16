@@ -47,6 +47,11 @@ def dashboard(request):
         avg=Avg('rrr')
     )['avg'] or 0
 
+    # Calculate potential ROI
+    potential_roi = 0
+    if total_capital_required > 0:
+        potential_roi = (float(total_potential_profit) / float(total_capital_required)) * 100
+
     # Get latest market data
     latest_market_data = MarketData.objects.first()
 
@@ -63,6 +68,7 @@ def dashboard(request):
         'top_signals': top_signals,
         'total_capital_required': total_capital_required,
         'total_potential_profit': total_potential_profit,
+        'potential_roi': potential_roi,
         'avg_rrr': avg_rrr,
         'latest_scan': latest_scan,
         'latest_market_data': latest_market_data,
